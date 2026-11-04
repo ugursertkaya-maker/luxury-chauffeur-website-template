@@ -367,3 +367,111 @@ Not defects, but things that surprised the person preparing this template:
 - **`/api/admin/pricing/county-cities` has an empty static map.** It was a
   hardcoded list of one US state's counties. The Google Places fallback still
   works for any region; fill the map in to avoid the API calls.
+
+---
+
+## Distribution audit baseline (2026-11-04) — additional unresolved findings
+
+This section records failures and gaps from the **template preparation report**.
+The figures are a historical snapshot, **not a freshly rerun security audit**.
+No fixes are claimed. Run the commands again after installation because dependency
+advisories and diagnostic counts can change.
+
+### 19. Dependency audit reported 25 vulnerabilities — severity: review before production
+
+The preparation run of `npm ci` installed 446 packages and reported
+**25 npm audit findings: 1 critical, 8 high, 16 moderate**. These are package
+advisory counts, not 25 separately proven exploitable application flaws.
+
+The report did **not** include the advisory IDs, affected transitive package
+versions, vulnerable dependency paths, or suggested upgrade versions. Those
+details remain **UNVERIFIED**; do not attribute particular CVEs or claim that a
+specific version fixes them without running a current audit.
+
+**Reproduce and triage:** run `npm ci` and `npm audit --json` in an isolated
+development copy. Record package, installed version, affected range, advisory
+URL, dependency path, exploit preconditions, and whether a compatible fix
+exists. Review effects of upgrades before changing the lockfile. Do not
+blindly run `npm audit fix --force`.
+
+### 20. ESLint fails (21 errors, 37 warnings) — severity: quality/reliability
+
+The template preparation run reported **58 ESLint findings** and
+`npm run lint` exited with code 1. The upstream baseline reported 64 findings
+(27 errors and 37 warnings). The remaining categories reported by the auditor
+include React state updates inside effects, refs accessed during render,
+`<img>` elements where `next/image` is recommended, and effect dependency
+warnings.
+
+Exact per-rule counts, file paths, and line numbers were **not included in the
+provided final report** and are therefore **NOT VERIFIED** in this document.
+
+**Reproduce:** run `npm run lint` (or `npx eslint . -f json` to capture a
+machine-readable result), preserve the output, and fix according to severity.
+Do not interpret a passing TypeScript check as a passing lint check.
+
+### 21. No end-to-end or integration test evidence — severity: release-readiness
+
+The preparation report confirms a successful Next.js production build
+(109 static pages), a clean TypeScript check, resolved tracked asset paths,
+and a documentation/secret scan. It does **not** establish that live booking,
+payment, booking confirmation webhooks, authentication, admin/driver/corporate
+permissions, emails, flight lookups, database initialization, or scheduled
+jobs work on a newly configured customer instance.
+
+**Required before taking bookings or payments:** test all three auth realms;
+admin bootstrap; server-side pricing; payment amounts and webhook state
+transitions; database schema and access boundaries; transactional email failure
+handling; booking management and cancellation; and new-domain SEO links.
+Run such tests with isolated test accounts and Stripe test mode only.
+
+### 22. Example content and service credentials deliberately do not activate
+production functionality — severity: installation/readiness
+
+The template intentionally ships with unpublished SEO seed examples, placeholder
+branding/images, empty testimonials and aggregate rating, and no live third-party
+credentials. The build passing **does not** mean a deploy is operational.
+The auditor specifically found that the existing Resend initialization requires
+`RESEND_API_KEY` **during build/page-data collection**; missing it may cause
+`next build` to fail even if outbound mail has not been used.
+
+**Recipient action:** follow `docs/API_SETUP.md`,
+`docs/CLIENT_SETUP_CHECKLIST.md` and `.env.example`; provide test
+credentials or appropriately isolated build values; initialize a fresh database;
+supply real, verifiable business content before publication. Never paste
+another company's credentials or private data into this template.
+
+### 23. Public distribution does not constitute a security or compliance
+certification — severity: release-readiness
+
+The preparatory scan used 21 reported secret patterns and found no matches in
+the new repository and its single-commit history. This is evidence of a clean
+scan **at preparation time**, not proof that all vulnerabilities, sensitive
+content, intellectual-property issues, or compliance obligations have been
+resolved. Source-level payment, password, contact endpoint, database and cron
+risks remain documented in issues 1–6.
+
+**Before production:** the recipient must review the outstanding findings,
+run fresh dependency and credential scans, review applicable licences, and
+test with its own infrastructure. The repository maintainers did not run real
+payment, email, SMS or database migration tests as part of the gift preparation.
+
+### Verified-at-preparation test summary
+
+| Check | Reported result | Limitation |
+| --- | --- | --- |
+| `npm ci` | PASS, 446 packages | 25 audit findings (1 critical, 8 high, 16 moderate) |
+| `npx tsc --noEmit` | PASS | Static types only |
+| `npm run lint` | **FAIL**, 21 errors / 37 warnings | Full diagnostic output not attached |
+| `npm run build` | PASS, 109 static pages | Placeholder environment; no external workflows tested |
+| Asset path/import checks | PASS | Does not validate business-licensed asset replacement |
+| Brand reference and secret scans | PASS as reported | Signature-based; not an independent guarantee |
+| Live booking/payment/database/email/SMS | **NOT TESTED** | Must be tested on the recipient's own isolated setup |
+
+### Prioritization for the recipient
+
+**Before live payments:** issue 1 is a release blocker. Independently evaluate
+issues 2, 3, 5 and 6 before exposing the system publicly. Address advisory
+findings according to the current `npm audit` output. Resolve the lint failure
+and test gaps before claiming production readiness. This section documents
+work remaining; it does **not** modify application behavior.
