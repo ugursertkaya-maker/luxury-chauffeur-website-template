@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --gold:       #D4A017;
+  --gold-light: #E8B84B;
+  --gold-dark:  #B8860B;
+  --brand-bg:   #080808;
+  --brand-bg2:  #0e0e0e;
+  --brand-bg3:  #141414;
+
+  --dark: #2b353d;
+  --mid:  #475665;
+  --light: #eef0f2;
+  --lighter: #f8f9fa;
+  --s900: #2b353d;
+  --s700: #475665;
+  --s500: #6b7d8d;
+  --s300: #c0cdd6;
+  --s100: #e5e8ea;
+  --s50:  #f8f9fa;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #ffffff;
+  background: #080808;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-dot { animation: pulse-dot 2s infinite; }
